@@ -23,8 +23,10 @@ begin
   ListSetType (f, "join")
 
   temp = f[:]->TREFHT
+  lons = temp&lon
+  lats = temp&lat
 
-  temp=temp-273.15
+;  temp=temp-273.15
 
   gwgt  = f[:]->gw
 
@@ -62,6 +64,9 @@ dTice=E280
 ntype=6
 
 
+   wlonind=232
+   wlatind=100
+
 
 uAve_gwgt=new((/ntype,nvars/),"double")
 
@@ -96,6 +101,36 @@ dTallp=dTco2p+dTorop+dTicep
 dTco2=dTco2p*(Eoi400-E280)/dTallp
 dToro=dTorop*(Eoi400-E280)/dTallp
 dTice=dTicep*(Eoi400-E280)/dTallp
+
+   print(" ")
+   print("testing:")
+   print(lons(wlonind))
+   print(lats(wlatind))
+   print("Eoi400: "+Eoi400(wlatind,wlonind))
+   print("E280: "+E280(wlatind,wlonind))
+
+dTco2pp=1.0/4.0*((E400(wlatind,wlonind)-E280(wlatind,wlonind))+(Eo400(wlatind,wlonind)-Eo280(wlatind,wlonind))+(Eoi400(wlatind,wlonind)-Eoi280(wlatind,wlonind))+(Ei400(wlatind,wlonind)-Ei280(wlatind,wlonind)))
+dToropp=1.0/4.0*((Eo280(wlatind,wlonind)-E280(wlatind,wlonind))+(Eo400(wlatind,wlonind)-E400(wlatind,wlonind))+(Eoi400(wlatind,wlonind)-Ei400(wlatind,wlonind))+(Eoi280(wlatind,wlonind)-Ei280(wlatind,wlonind)))
+dTicepp=1.0/4.0*((Ei280(wlatind,wlonind)-E280(wlatind,wlonind))+(Ei400(wlatind,wlonind)-E400(wlatind,wlonind))+(Eoi400(wlatind,wlonind)-Eo400(wlatind,wlonind))+(Eoi280(wlatind,wlonind)-Eo280(wlatind,wlonind)))
+
+   dTallpp=dTco2pp+dToropp+dTicepp
+   dTallto=Eoi400(wlatind,wlonind)-E280(wlatind,wlonind)
+
+   print("dTco2pp: "+dTco2pp)
+   print("dToropp: "+dToropp)
+   print("dTicepp: "+dTicepp)
+   print("dTallpp: "+dTallpp)
+   print("dTallto: "+dTallto)
+
+   my_scaling=dTallto/dTallpp
+   print("scaling: "+my_scaling)
+   
+   print("co2: "+dTco2pp*my_scaling)
+   print("oro: "+dToropp*my_scaling)
+   print("ice: "+dTicepp*my_scaling)
+
+
+
    end if
 
    if (t .eq. 3) then
@@ -118,10 +153,20 @@ dTco2p=1.0/4.0*((E400-E280)+(Eo400-Eo280)+(Eoi400-Eoi280)+(Ei400-Ei280))
 dTorop=1.0/4.0*((Eo280-E280)+(Eo400-E400)+(Eoi400-Ei400)+(Eoi280-Ei280))
 dTicep=1.0/4.0*((Ei280-E280)+(Ei400-E400)+(Eoi400-Eo400)+(Eoi280-Eo280))
 dTallp=dTco2p+dTorop+dTicep
-Rp=((3*Eoi400 + Ei400 + Eoi280  + Eo400)-(3*E280 + Ei280 + Eo280 + E400))/4.0
+Rp=((3.0*Eoi400 + Ei400 + Eoi280  + Eo400)-(3.0*E280 + Ei280 + Eo280 + E400))/4.0
 dTco2=dTco2p * (Eoi400-E280)/Rp
 dToro=dTorop * (Eoi400-E280)/Rp
 dTice=dTicep * (Eoi400-E280)/Rp
+
+print("parts for method 4:")
+print("Eoi400: "+Eoi400(wlatind,wlonind))
+print("Ei400: "+Ei400(wlatind,wlonind))
+print("Eoi280: "+Eoi280(wlatind,wlonind))
+print("Eo400: "+Eo400(wlatind,wlonind))
+
+print("Components for method 4: "+(3*Eoi400(wlatind,wlonind) + Ei400(wlatind,wlonind) + Eoi280(wlatind,wlonind)  + Eo400(wlatind,wlonind))+" "+(3*E280(wlatind,wlonind) + Ei280(wlatind,wlonind) + Eo280(wlatind,wlonind) + E400(wlatind,wlonind)))
+print("Scaling for method 4: "+Rp(wlatind,wlonind))
+
    end if
 
    if (t .eq. 5) then
@@ -137,6 +182,9 @@ dTco2=dTco2p + R*abs(dTco2p)/dTalla
 dToro=dTorop + R*abs(dTorop)/dTalla
 dTice=dTicep + R*abs(dTicep)/dTalla
    end if
+
+   print(" ")
+
 
 
     minlat = -90
@@ -280,12 +328,27 @@ dTice=dTicep + R*abs(dTicep)/dTalla
   frame(wks)
 
   uAve_gwgt(t,v) = wgt_areaave(my_var(:,:), weight, 1.0, 1)
-  print(typename+" "+t+": "+name_var+" "+v+" = "+uAve_gwgt(t,v))  
+  print(typename+" "+t+": "+name_var+" "+v+" = "+uAve_gwgt(t,v))
+  
   print(typename+" max: "+max(my_var(:,:)))
   print(typename+" min: "+min(my_var(:,:)))
+
+  dims = dimsizes(my_var)
+  x1d = ndtooned(my_var)      ; convert 2D array to 1D for use in maxind
+  inds = ind_resolve(maxind (x1d), dims)    ; convert 1D array back to 2D 
+  ilat = inds(0,0)        ; select the latitude index where the X array is at its' maximum  
+  ilon = inds(0,1)        ; select the longitude index where the X array is at its' maximum
+  print("Maximum value located at index "+ilon+", "+ilat) 
+  lat_max = lats(ilat)   ; insert the latitude index into the lat coordinate variable
+  lon_max = lons(ilon)   ; insert the longitude index into the lon coordinate variable
+  print("Maximum value located at "+lon_max+", "+lat_max) 
+
+  print(" ")
+
   end do
 
   print("total: "+sum(uAve_gwgt(t,1:3)))
+  print(" ")
 
   end do
 
