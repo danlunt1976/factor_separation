@@ -1,6 +1,13 @@
 """
-Need to do: 
+This code originally written by Deepak Chandan
+Modified by Dan Lunt
+"""
+
+
+"""
+Need to run: 
 module add anaconda/2.7-5.0.1
+(or equivalent)
 """
 
 import netCDF4
