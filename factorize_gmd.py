@@ -173,19 +173,23 @@ def factorizeScaledResidualAbs(eoi400,ei400,eo400,e400,eoi280,ei280,eo280,e280):
 
 
 dT, dTCO2new, dTtoponew, dTicenew = factorizeLinearSum(eoi400d,ei400d,eo400d,e400d,eoi280d,ei280d,eo280d,e280d)
+print('Linear Sum max values:')
 print(np.amax(dTCO2new))
 print(np.amax(dTicenew))
 print(np.amax(dTtoponew))
 
 dT, dTCO2, dTtopo, dTice, dTCO2new, dTtoponew, dTicenew = factorizeScaledResidualRel(eoi400d,ei400d,eo400d,e400d,eoi280d,ei280d,eo280d,e280d)
+print('Lunt et al max values:')
 print(np.amax(dTCO2))
 print(np.amax(dTice))
 print(np.amax(dTtopo))
+print('Scaled residual (relative) max values:')
 print(np.amax(dTCO2new))
 print(np.amax(dTicenew))
 print(np.amax(dTtoponew))
 
 dT, dTCO2, dTtopo, dTice, dTCO2new, dTtoponew, dTicenew = factorizeScaledResidualAbs(eoi400d,ei400d,eo400d,e400d,eoi280d,ei280d,eo280d,e280d)
+print('Scaled residual (absolute) max values:')
 print(np.amax(dTCO2new))
 print(np.amax(dTicenew))
 print(np.amax(dTtoponew))
