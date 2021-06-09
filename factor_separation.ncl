@@ -1,12 +1,15 @@
 ;*************************************************
+; run using: 
+; ncl factor_separation.ncl
+;*************************************************
 
 begin
 
 do_testing_bound=0
-do_testing_maxval=0
+do_testing_maxval=1
 do_avg=1
-do_plots=1
-do_perc=1
+do_plots=0
+do_perc=0
 
 
 ; Read in netcdf files
